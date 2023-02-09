@@ -200,7 +200,7 @@ fn main() {
     };
 
     let (circle_buffers, mut active_circle_buffer, circles_count) = unsafe {
-        let circles = std::array::from_fn::<_, 1000, _>(|_| Circle {
+        let circles = std::iter::repeat_with(|| Circle {
             position: [
                 (random::<f32>() * 2.0 - 1.0) * 50.0,
                 (random::<f32>() * 2.0 - 1.0) * 50.0,
@@ -209,7 +209,9 @@ fn main() {
                 (random::<f32>() * 2.0 - 1.0) * 10.0,
                 (random::<f32>() * 2.0 - 1.0) * 10.0,
             ],
-        });
+        })
+        .take(64 * 700)
+        .collect::<Vec<_>>();
 
         let mut buffers = [0; 2];
         gl::GenBuffers(buffers.len() as _, buffers.as_mut_ptr());
@@ -217,14 +219,14 @@ fn main() {
         gl::BindBuffer(gl::SHADER_STORAGE_BUFFER, buffers[0]);
         gl::BufferData(
             gl::SHADER_STORAGE_BUFFER,
-            std::mem::size_of_val(&circles) as _,
+            std::mem::size_of_val(circles.as_slice()) as _,
             circles.as_ptr() as _,
             gl::DYNAMIC_DRAW,
         );
         gl::BindBuffer(gl::SHADER_STORAGE_BUFFER, buffers[1]);
         gl::BufferData(
             gl::SHADER_STORAGE_BUFFER,
-            std::mem::size_of_val(&circles) as _,
+            std::mem::size_of_val(circles.as_slice()) as _,
             std::ptr::null(),
             gl::DYNAMIC_DRAW,
         );
@@ -343,7 +345,7 @@ fn main() {
                     1,
                     circle_buffers[next_active_circle_buffer],
                 );
-                gl::DispatchCompute(circles_count as _, 1, 1);
+                gl::DispatchCompute((circles_count / 64) as _, 1, 1);
                 gl::MemoryBarrier(gl::ALL_BARRIER_BITS);
             }
 
