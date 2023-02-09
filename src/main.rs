@@ -1,4 +1,5 @@
 use glfw::{Action, Context, Key, OpenGlProfileHint, WindowEvent, WindowHint};
+use rand::random;
 
 #[repr(C)]
 pub struct Circle {
@@ -199,16 +200,16 @@ fn main() {
     };
 
     let (circle_buffers, mut active_circle_buffer, circles_count) = unsafe {
-        let circles = [
-            Circle {
-                position: [0.5, 0.0],
-                velocity: [0.5, 0.2],
-            },
-            Circle {
-                position: [-0.5, 0.0],
-                velocity: [0.0, 0.0],
-            },
-        ];
+        let circles = std::array::from_fn::<_, 1000, _>(|_| Circle {
+            position: [
+                (random::<f32>() * 2.0 - 1.0) * 50.0,
+                (random::<f32>() * 2.0 - 1.0) * 50.0,
+            ],
+            velocity: [
+                (random::<f32>() * 2.0 - 1.0) * 10.0,
+                (random::<f32>() * 2.0 - 1.0) * 10.0,
+            ],
+        });
 
         let mut buffers = [0; 2];
         gl::GenBuffers(buffers.len() as _, buffers.as_mut_ptr());
@@ -280,6 +281,8 @@ fn main() {
         let ts = time.duration_since(last_time).as_secs_f32();
         last_time = time;
 
+        print!("{}ms            \r", ts * 1000.0);
+
         glfw.poll_events();
         for (_, event) in glfw::flush_messages(&events) {
             match event {
@@ -299,17 +302,18 @@ fn main() {
             }
         }
 
+        const CAMERA_SPEED: f32 = 1.0;
         if window.get_key(Key::W) == Action::Press {
-            camera_position[1] += 5.0 * ts;
+            camera_position[1] += CAMERA_SPEED * camera_scale * ts;
         }
         if window.get_key(Key::S) == Action::Press {
-            camera_position[1] -= 5.0 * ts;
+            camera_position[1] -= CAMERA_SPEED * camera_scale * ts;
         }
         if window.get_key(Key::A) == Action::Press {
-            camera_position[0] -= 5.0 * ts;
+            camera_position[0] -= CAMERA_SPEED * camera_scale * ts;
         }
         if window.get_key(Key::D) == Action::Press {
-            camera_position[0] += 5.0 * ts;
+            camera_position[0] += CAMERA_SPEED * camera_scale * ts;
         }
 
         // Physics
@@ -319,6 +323,11 @@ fn main() {
             // Run the compute shader to calculate physics, both buffers should be the right size
             unsafe {
                 gl::UseProgram(physics_shader);
+                gl::ProgramUniform1i(
+                    physics_shader,
+                    gl::GetUniformLocation(physics_shader, b"u_CircleCount\0".as_ptr() as _),
+                    circles_count as _,
+                );
                 gl::ProgramUniform1f(
                     physics_shader,
                     gl::GetUniformLocation(physics_shader, b"u_TS\0".as_ptr() as _),

@@ -2,6 +2,7 @@
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
+uniform int u_CircleCount;
 uniform float u_TS;
 
 struct Circle {
@@ -20,6 +21,13 @@ void main() {
   int index = int(gl_GlobalInvocationID);
   Circle circle = in_circles[index];
 
+  for (int i = 0; i < u_CircleCount; i++) {
+    if (i != index) {
+      vec2 relativePosition = in_circles[i].position - circle.position;
+      float sqrDistance = dot(relativePosition, relativePosition);
+      circle.velocity += relativePosition * (1.0 / sqrDistance) * u_TS;
+    }
+  }
   circle.position += circle.velocity * u_TS;
 
   out_circles[index] = circle;
