@@ -1,4 +1,4 @@
-use glfw::{Context, OpenGlProfileHint, WindowEvent, WindowHint};
+use glfw::{Action, Context, Key, OpenGlProfileHint, WindowEvent, WindowHint};
 
 #[repr(C)]
 pub struct Circle {
@@ -271,6 +271,9 @@ fn main() {
     }
     .unwrap();
 
+    let mut camera_position = [0.0, 0.0];
+    let mut camera_scale = 1.0;
+
     let mut last_time = std::time::Instant::now();
     while !window.should_close() {
         let time = std::time::Instant::now();
@@ -283,14 +286,34 @@ fn main() {
                 WindowEvent::Size(width, height) => unsafe {
                     gl::Viewport(0, 0, width, height);
                 },
+                WindowEvent::Scroll(_, y) => {
+                    let y = y as f32;
+                    if y < 0.0 {
+                        camera_scale /= 0.9;
+                    }
+                    if y > 0.0 {
+                        camera_scale *= 0.9;
+                    }
+                }
                 _ => {}
             }
         }
 
+        if window.get_key(Key::W) == Action::Press {
+            camera_position[1] += 5.0 * ts;
+        }
+        if window.get_key(Key::S) == Action::Press {
+            camera_position[1] -= 5.0 * ts;
+        }
+        if window.get_key(Key::A) == Action::Press {
+            camera_position[0] -= 5.0 * ts;
+        }
+        if window.get_key(Key::D) == Action::Press {
+            camera_position[0] += 5.0 * ts;
+        }
+
         // Physics
         {
-            assert_eq!(circle_buffers.len(), 2);
-
             let next_active_circle_buffer = (active_circle_buffer + 1) % circle_buffers.len();
 
             // Run the compute shader to calculate physics, both buffers should be the right size
@@ -330,6 +353,17 @@ fn main() {
                 gl::GetUniformLocation(square_shader, b"u_ScreenSize\0".as_ptr() as _),
                 width,
                 height,
+            );
+            gl::ProgramUniform2f(
+                square_shader,
+                gl::GetUniformLocation(square_shader, b"u_CameraPosition\0".as_ptr() as _),
+                camera_position[0],
+                camera_position[1],
+            );
+            gl::ProgramUniform1f(
+                square_shader,
+                gl::GetUniformLocation(square_shader, b"u_CameraScale\0".as_ptr() as _),
+                camera_scale,
             );
             gl::BindVertexArray(square_vertex_array);
             gl::BindBufferBase(
