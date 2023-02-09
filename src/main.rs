@@ -210,7 +210,7 @@ fn main() {
                 (random::<f32>() * 2.0 - 1.0) * 10.0,
             ],
         })
-        .take(64 * 700)
+        .take(45000)
         .collect::<Vec<_>>();
 
         let mut buffers = [0; 2];

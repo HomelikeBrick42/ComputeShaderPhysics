@@ -19,6 +19,9 @@ layout(std140, binding = 1) writeonly buffer OutCircleBuffer {
 
 void main() {
   int index = int(gl_GlobalInvocationID);
+  if (index >= u_CircleCount)
+    return;
+
   Circle circle = in_circles[index];
 
   for (int i = 0; i < u_CircleCount; i++) {
