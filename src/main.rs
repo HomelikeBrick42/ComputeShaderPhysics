@@ -345,7 +345,7 @@ fn main() {
                     1,
                     circle_buffers[next_active_circle_buffer],
                 );
-                gl::DispatchCompute((circles_count / 64) as _, 1, 1);
+                gl::DispatchCompute(((circles_count + 64 - 1) / 64) as _, 1, 1);
                 gl::MemoryBarrier(gl::ALL_BARRIER_BITS);
             }
 
