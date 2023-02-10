@@ -1,10 +1,11 @@
 use glfw::{Action, Context, Key, OpenGlProfileHint, WindowEvent, WindowHint};
 use rand::random;
 
-#[repr(C)]
+#[repr(C, align(8))]
 pub struct Circle {
     pub position: [f32; 2],
     pub velocity: [f32; 2],
+    pub typ: i32,
 }
 
 fn main() {
@@ -202,15 +203,16 @@ fn main() {
     let (circle_buffers, mut active_circle_buffer, circles_count) = unsafe {
         let circles = std::iter::repeat_with(|| Circle {
             position: [
-                (random::<f32>() * 2.0 - 1.0) * 5.0,
-                (random::<f32>() * 2.0 - 1.0) * 5.0,
+                (random::<f32>() * 2.0 - 1.0) * 10.0,
+                (random::<f32>() * 2.0 - 1.0) * 10.0,
             ],
             velocity: [
                 (random::<f32>() * 2.0 - 1.0) * 2.0,
                 (random::<f32>() * 2.0 - 1.0) * 2.0,
             ],
+            typ: random::<i32>() % 3,
         })
-        .take(100)
+        .take(1000)
         .collect::<Vec<_>>();
 
         let mut buffers = [0; 2];
@@ -275,7 +277,7 @@ fn main() {
     .unwrap();
 
     let mut camera_position = [0.0, 0.0];
-    let mut camera_scale = 1.0;
+    let mut camera_scale = 10.0;
 
     let mut last_time = std::time::Instant::now();
     while !window.should_close() {

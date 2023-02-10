@@ -13,6 +13,7 @@ uniform float u_CameraScale;
 struct Circle {
   vec2 position;
   vec2 velocity;
+  int typ;
 };
 
 layout(std430, binding = 0) readonly buffer CircleBuffer { Circle circles[]; };

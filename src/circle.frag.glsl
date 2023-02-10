@@ -8,9 +8,13 @@ layout(location = 1) in flat int v_InstanceID;
 struct Circle {
   vec2 position;
   vec2 velocity;
+  int typ;
 };
 
 layout(std430, binding = 0) readonly buffer CircleBuffer { Circle circles[]; };
+
+const vec3 circle_colors[3] =
+    vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0));
 
 void main() {
   if ((v_UV.x * 2.0 - 1.0) * (v_UV.x * 2.0 - 1.0) +
@@ -18,12 +22,7 @@ void main() {
       0.25) {
     discard;
   }
-#if 0
   Circle circle = circles[v_InstanceID];
   float sqrSpeed = dot(circle.velocity, circle.velocity);
-  o_Color = vec4(
-      mix(vec3(0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), sqrSpeed / 10000.0), 1.0);
-#else
-  o_Color = vec4(1.0, 0.0, 0.0, 1.0);
-#endif
+  o_Color = vec4(circle_colors[circle.typ], 1.0);
 }
