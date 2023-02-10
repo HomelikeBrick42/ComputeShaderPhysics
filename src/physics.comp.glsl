@@ -10,10 +10,10 @@ struct Circle {
   vec2 velocity;
 };
 
-layout(std140, binding = 0) readonly buffer InCircleBuffer {
+layout(std430, binding = 0) readonly buffer InCircleBuffer {
   Circle in_circles[];
 };
-layout(std140, binding = 1) writeonly buffer OutCircleBuffer {
+layout(std430, binding = 1) writeonly buffer OutCircleBuffer {
   Circle out_circles[];
 };
 
@@ -26,12 +26,11 @@ void main() {
 
   for (int i = 0; i < u_CircleCount; i++) {
     if (i != index) {
-      vec2 relativePosition = in_circles[i].position - circle.position;
-      float sqrDistance = dot(relativePosition, relativePosition);
-      circle.velocity += relativePosition * (1.0 / sqrDistance) * u_TS;
+      // TODO: update
     }
   }
   circle.position += circle.velocity * u_TS;
+  circle.velocity -= circle.velocity * 0.2 * u_TS;
 
   out_circles[index] = circle;
 }

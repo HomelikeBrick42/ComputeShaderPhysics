@@ -10,7 +10,7 @@ struct Circle {
   vec2 velocity;
 };
 
-layout(std140, binding = 0) readonly buffer CircleBuffer { Circle circles[]; };
+layout(std430, binding = 0) readonly buffer CircleBuffer { Circle circles[]; };
 
 void main() {
   if ((v_UV.x * 2.0 - 1.0) * (v_UV.x * 2.0 - 1.0) +

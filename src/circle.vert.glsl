@@ -15,7 +15,7 @@ struct Circle {
   vec2 velocity;
 };
 
-layout(std140, binding = 0) readonly buffer CircleBuffer { Circle circles[]; };
+layout(std430, binding = 0) readonly buffer CircleBuffer { Circle circles[]; };
 
 void main() {
   float aspect = float(u_ScreenSize.x) / float(u_ScreenSize.y);
