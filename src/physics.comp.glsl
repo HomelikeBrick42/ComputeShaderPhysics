@@ -19,7 +19,7 @@ layout(std430, binding = 1) writeonly buffer OutCircleBuffer {
 };
 
 float forces[3][3] = float[3][3](
-    float[3](0.5, 1.0, 0.0), float[3](1.0, 0.5, 0.0), float[3](0.0, 0.0, 0.5));
+    float[3](0.5, 1.0, -0.5), float[3](1.0, 1.0, 1.0), float[3](0.0, 0.0, 0.5));
 
 float computeForce(float r, float a) {
   const float beta = 0.3;
@@ -45,8 +45,8 @@ void main() {
       float dist = length(aToB);
       aToB = normalize(aToB);
 
-      float force = forces[in_circles[i].typ][circle.typ];
-      circle.velocity += aToB * computeForce(dist / 15.0, force) * u_TS;
+      float force = forces[circle.typ][in_circles[i].typ];
+      circle.velocity += aToB * computeForce(dist / 16.0, force) * u_TS;
     }
   }
   circle.position += circle.velocity * u_TS;
