@@ -203,16 +203,16 @@ fn main() {
     let (circle_buffers, mut active_circle_buffer, circles_count) = unsafe {
         let circles = std::iter::repeat_with(|| Circle {
             position: [
-                (random::<f32>() * 2.0 - 1.0) * 10.0,
-                (random::<f32>() * 2.0 - 1.0) * 10.0,
+                (random::<f32>() * 2.0 - 1.0) * 200.0,
+                (random::<f32>() * 2.0 - 1.0) * 200.0,
             ],
             velocity: [
-                (random::<f32>() * 2.0 - 1.0) * 2.0,
-                (random::<f32>() * 2.0 - 1.0) * 2.0,
+                (random::<f32>() * 2.0 - 1.0) * 10.0,
+                (random::<f32>() * 2.0 - 1.0) * 10.0,
             ],
-            typ: random::<i32>().abs() % 3,
+            typ: random::<i32>().abs() % 4,
         })
-        .take(1000)
+        .take(40000)
         .collect::<Vec<_>>();
 
         let mut buffers = [0; 2];

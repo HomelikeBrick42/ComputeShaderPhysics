@@ -13,8 +13,8 @@ struct Circle {
 
 layout(std430, binding = 0) readonly buffer CircleBuffer { Circle circles[]; };
 
-vec3 circle_colors[3] =
-    vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0));
+vec3 circle_colors[4] = vec3[4](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0),
+                                vec3(0.0, 0.0, 1.0), vec3(1.0, 1.0, 0.0));
 
 void main() {
   if ((v_UV.x * 2.0 - 1.0) * (v_UV.x * 2.0 - 1.0) +
