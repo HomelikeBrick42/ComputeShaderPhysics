@@ -203,8 +203,8 @@ fn main() {
     let (circle_buffers, mut active_circle_buffer, circles_count) = unsafe {
         let circles = std::iter::repeat_with(|| Circle {
             position: [
-                (random::<f32>() * 2.0 - 1.0) * 200.0,
-                (random::<f32>() * 2.0 - 1.0) * 200.0,
+                (random::<f32>() * 2.0 - 1.0) * 100.0,
+                (random::<f32>() * 2.0 - 1.0) * 100.0,
             ],
             velocity: [
                 (random::<f32>() * 2.0 - 1.0) * 10.0,
@@ -212,7 +212,7 @@ fn main() {
             ],
             typ: random::<i32>().abs() % 4,
         })
-        .take(40000)
+        .take(10000)
         .collect::<Vec<_>>();
 
         let mut buffers = [0; 2];
@@ -320,6 +320,8 @@ fn main() {
             camera_position[0] += CAMERA_SPEED * camera_scale * ts;
         }
 
+        const MAX_POS: f32 = 100.0;
+
         // Physics
         {
             let next_active_circle_buffer = (active_circle_buffer + 1) % circle_buffers.len();
@@ -336,6 +338,11 @@ fn main() {
                     physics_shader,
                     gl::GetUniformLocation(physics_shader, b"u_TS\0".as_ptr() as _),
                     ts,
+                );
+                gl::ProgramUniform1f(
+                    physics_shader,
+                    gl::GetUniformLocation(physics_shader, b"u_MaxPos\0".as_ptr() as _),
+                    MAX_POS,
                 );
                 gl::BindBufferBase(
                     gl::SHADER_STORAGE_BUFFER,
@@ -378,11 +385,119 @@ fn main() {
                 gl::GetUniformLocation(square_shader, b"u_CameraScale\0".as_ptr() as _),
                 camera_scale,
             );
+            gl::ProgramUniform1f(
+                square_shader,
+                gl::GetUniformLocation(square_shader, b"u_MaxPos\0".as_ptr() as _),
+                MAX_POS,
+            );
             gl::BindVertexArray(square_vertex_array);
             gl::BindBufferBase(
                 gl::SHADER_STORAGE_BUFFER,
                 0,
                 circle_buffers[active_circle_buffer],
+            );
+
+            gl::ProgramUniform2f(
+                square_shader,
+                gl::GetUniformLocation(square_shader, b"u_WorldOffset\0".as_ptr() as _),
+                -MAX_POS * 2.0,
+                MAX_POS * 2.0,
+            );
+            gl::DrawArraysInstanced(
+                square_primitive_type,
+                0,
+                square_vertex_count as _,
+                circles_count as _,
+            );
+            gl::ProgramUniform2f(
+                square_shader,
+                gl::GetUniformLocation(square_shader, b"u_WorldOffset\0".as_ptr() as _),
+                0.0,
+                MAX_POS * 2.0,
+            );
+            gl::DrawArraysInstanced(
+                square_primitive_type,
+                0,
+                square_vertex_count as _,
+                circles_count as _,
+            );
+            gl::ProgramUniform2f(
+                square_shader,
+                gl::GetUniformLocation(square_shader, b"u_WorldOffset\0".as_ptr() as _),
+                MAX_POS * 2.0,
+                MAX_POS * 2.0,
+            );
+            gl::DrawArraysInstanced(
+                square_primitive_type,
+                0,
+                square_vertex_count as _,
+                circles_count as _,
+            );
+            gl::ProgramUniform2f(
+                square_shader,
+                gl::GetUniformLocation(square_shader, b"u_WorldOffset\0".as_ptr() as _),
+                -MAX_POS * 2.0,
+                0.0,
+            );
+            gl::DrawArraysInstanced(
+                square_primitive_type,
+                0,
+                square_vertex_count as _,
+                circles_count as _,
+            );
+            gl::ProgramUniform2f(
+                square_shader,
+                gl::GetUniformLocation(square_shader, b"u_WorldOffset\0".as_ptr() as _),
+                0.0,
+                0.0,
+            );
+            gl::DrawArraysInstanced(
+                square_primitive_type,
+                0,
+                square_vertex_count as _,
+                circles_count as _,
+            );
+            gl::ProgramUniform2f(
+                square_shader,
+                gl::GetUniformLocation(square_shader, b"u_WorldOffset\0".as_ptr() as _),
+                MAX_POS * 2.0,
+                0.0,
+            );
+            gl::DrawArraysInstanced(
+                square_primitive_type,
+                0,
+                square_vertex_count as _,
+                circles_count as _,
+            );
+            gl::ProgramUniform2f(
+                square_shader,
+                gl::GetUniformLocation(square_shader, b"u_WorldOffset\0".as_ptr() as _),
+                -MAX_POS * 2.0,
+                -MAX_POS * 2.0,
+            );
+            gl::DrawArraysInstanced(
+                square_primitive_type,
+                0,
+                square_vertex_count as _,
+                circles_count as _,
+            );
+            gl::ProgramUniform2f(
+                square_shader,
+                gl::GetUniformLocation(square_shader, b"u_WorldOffset\0".as_ptr() as _),
+                0.0,
+                -MAX_POS * 2.0,
+            );
+            gl::DrawArraysInstanced(
+                square_primitive_type,
+                0,
+                square_vertex_count as _,
+                circles_count as _,
+            );
+            gl::ProgramUniform2f(
+                square_shader,
+                gl::GetUniformLocation(square_shader, b"u_WorldOffset\0".as_ptr() as _),
+                MAX_POS * 2.0,
+                -MAX_POS * 2.0,
             );
             gl::DrawArraysInstanced(
                 square_primitive_type,

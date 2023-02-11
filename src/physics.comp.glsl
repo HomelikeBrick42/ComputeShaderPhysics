@@ -4,6 +4,7 @@ layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 
 uniform int u_CircleCount;
 uniform float u_TS;
+uniform float u_MaxPos;
 
 struct Circle {
   vec2 position;
@@ -33,6 +34,19 @@ float computeForce(float r, float a) {
   }
 }
 
+vec2 calculateActualForce(int aType, int bType, vec2 a, vec2 b) {
+  vec2 aToB = b - a;
+
+  float dist = length(aToB);
+  if (abs(dist) < 0.01)
+    return vec2(0.0, 0.0);
+
+  aToB = normalize(aToB);
+
+  float force = forces[aType][bType];
+  return aToB * computeForce(dist / 16.0, force) * u_TS;
+}
+
 void main() {
   int index = int(gl_GlobalInvocationID);
   if (index >= u_CircleCount)
@@ -41,17 +55,45 @@ void main() {
   Circle circle = in_circles[index];
 
   for (int i = 0; i < u_CircleCount; i++) {
-    if (i != index) {
-      vec2 aToB = in_circles[i].position - circle.position;
-      float dist = length(aToB);
-      aToB = normalize(aToB);
-
-      float force = forces[circle.typ][in_circles[i].typ];
-      circle.velocity += aToB * computeForce(dist / 16.0, force) * u_TS;
-    }
+    circle.velocity += calculateActualForce(
+        circle.typ, in_circles[i].typ, circle.position,
+        in_circles[i].position + vec2(-u_MaxPos, -u_MaxPos) * 2.0);
+    circle.velocity += calculateActualForce(
+        circle.typ, in_circles[i].typ, circle.position,
+        in_circles[i].position + vec2(0.0, -u_MaxPos) * 2.0);
+    circle.velocity += calculateActualForce(
+        circle.typ, in_circles[i].typ, circle.position,
+        in_circles[i].position + vec2(u_MaxPos, -u_MaxPos) * 2.0);
+    circle.velocity += calculateActualForce(
+        circle.typ, in_circles[i].typ, circle.position,
+        in_circles[i].position + vec2(-u_MaxPos, 0.0) * 2.0);
+    circle.velocity +=
+        calculateActualForce(circle.typ, in_circles[i].typ, circle.position,
+                             in_circles[i].position + vec2(0.0, 0.0) * 2.0);
+    circle.velocity += calculateActualForce(
+        circle.typ, in_circles[i].typ, circle.position,
+        in_circles[i].position + vec2(u_MaxPos, 0.0) * 2.0);
+    circle.velocity += calculateActualForce(
+        circle.typ, in_circles[i].typ, circle.position,
+        in_circles[i].position + vec2(-u_MaxPos, u_MaxPos) * 2.0);
+    circle.velocity += calculateActualForce(
+        circle.typ, in_circles[i].typ, circle.position,
+        in_circles[i].position + vec2(0.0, u_MaxPos) * 2.0);
+    circle.velocity += calculateActualForce(
+        circle.typ, in_circles[i].typ, circle.position,
+        in_circles[i].position + vec2(u_MaxPos, u_MaxPos) * 2.0);
   }
   circle.position += circle.velocity * u_TS;
   circle.velocity -= circle.velocity * 4.0 * u_TS;
+
+  if (circle.position.x > u_MaxPos)
+    circle.position.x -= 2.0 * u_MaxPos;
+  if (circle.position.x < -u_MaxPos)
+    circle.position.x += 2.0 * u_MaxPos;
+  if (circle.position.y > u_MaxPos)
+    circle.position.y -= 2.0 * u_MaxPos;
+  if (circle.position.y < -u_MaxPos)
+    circle.position.y += 2.0 * u_MaxPos;
 
   out_circles[index] = circle;
 }
