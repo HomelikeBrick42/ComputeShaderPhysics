@@ -210,7 +210,7 @@ fn main() {
                 (random::<f32>() * 2.0 - 1.0) * 2.0,
                 (random::<f32>() * 2.0 - 1.0) * 2.0,
             ],
-            typ: random::<i32>() % 3,
+            typ: random::<i32>().abs() % 3,
         })
         .take(1000)
         .collect::<Vec<_>>();

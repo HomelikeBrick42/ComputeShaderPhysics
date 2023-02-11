@@ -13,7 +13,7 @@ struct Circle {
 
 layout(std430, binding = 0) readonly buffer CircleBuffer { Circle circles[]; };
 
-const vec3 circle_colors[3] =
+vec3 circle_colors[3] =
     vec3[3](vec3(1.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0), vec3(0.0, 0.0, 1.0));
 
 void main() {
